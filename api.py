@@ -22,7 +22,7 @@ async def websocket_endpoint(websocket: WebSocket):
         message = await websocket.receive()
 
         if isinstance(message, bytes):
-            data = json.loads(message.decode())
+            message = json.loads(message.decode())
         else:
             if message == "<FIN>":
                 await websocket.close()
@@ -42,12 +42,5 @@ async def fetch_messages():
 @app.get('/')
 def hello():
     return {'hello'}
-
-
-
-# if __name__ == "__main__":
-#     import uvicorn
-
-#     uvicorn.run(app, host="127.0.0.1", port=8000)
 
 
