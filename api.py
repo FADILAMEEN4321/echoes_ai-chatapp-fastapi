@@ -17,7 +17,6 @@ app = FastAPI()
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    print('------->')
 
     while True:
         message = await websocket.receive()
