@@ -3,13 +3,16 @@ import os
 import json
 from dotenv import load_dotenv
 import google.generativeai as genai
+import PIL.Image
 
 
 
 load_dotenv()
 genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
-model = genai.GenerativeModel('gemini-pro')
-chat = model.start_chat(history=[])
+chat_model = genai.GenerativeModel('gemini-pro')
+vision_model = genai.GenerativeModel('gemini-pro-vision')
+
+chat = chat_model.start_chat(history=[])
 
 
 app = FastAPI()
@@ -20,6 +23,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
     while True:
         message = await websocket.receive()
+        print(message)
 
         if isinstance(message, bytes):
             message = json.loads(message.decode())
@@ -28,10 +32,14 @@ async def websocket_endpoint(websocket: WebSocket):
                 await websocket.close()
                 break
 
-            respone = chat.send_message([message["text"]], stream=True)
-            print(respone)
+            response = chat.send_message([message["text"]], stream=True)
+            # img = PIL.Image.open('matrix_profile.jpg')   
+            # response = vision_model.generate_content([message["text"], img], stream=True)
+            # response.resolve() 
+            
+            print(response)
 
-        for chunk in respone:
+        for chunk in response:
             await websocket.send_text(chunk.text)
         await websocket.send_text("<FIN>")        
 
