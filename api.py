@@ -17,7 +17,6 @@ app = FastAPI()
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    print('------->')
 
     while True:
         message = await websocket.receive()
@@ -25,11 +24,11 @@ async def websocket_endpoint(websocket: WebSocket):
         if isinstance(message, bytes):
             data = json.loads(message.decode())
         else:
-            if message == "!<FIN>!":
+            if message == "<FIN>":
                 await websocket.close()
                 break
 
-            respone = chat.send_message([message], stream=True)
+            respone = chat.send_message([message["text"]], stream=True)
             print(respone)
 
         for chunk in respone:
@@ -44,11 +43,5 @@ async def fetch_messages():
 def hello():
     return {'hello'}
 
-
-
-# if __name__ == "__main__":
-#     import uvicorn
-
-#     uvicorn.run(app, host="127.0.0.1", port=8000)
 
 
