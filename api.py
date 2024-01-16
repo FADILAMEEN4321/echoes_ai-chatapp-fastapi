@@ -39,7 +39,7 @@ async def websocket_endpoint(websocket: WebSocket):
             # image_bytes = image.encode('utf-8')
             image_bytes = base64.b64decode(image)
 
-            if text == "<FIN>":
+            if message.get("text") == "<FIN>":
                 await websocket.close()
                 break
 
@@ -55,11 +55,15 @@ async def websocket_endpoint(websocket: WebSocket):
                 break
 
             print("-------------no image")
+            # print('----->chat-list--->',chat.history)
 
             response = chat.send_message([message.get("text")], stream=True)
 
+            # print('----->chat-list after each response--->',chat.history)
+
         for chunk in response:
             await websocket.send_text(chunk.text)
+        # print('----->chat-list complete--->',chat.history)    
         await websocket.send_text("<FIN>")
 
 
