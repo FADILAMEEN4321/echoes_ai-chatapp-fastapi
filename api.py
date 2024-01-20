@@ -5,6 +5,8 @@ import google.generativeai as genai
 import PIL.Image
 import io
 import base64
+import requests
+from stability_ai import stability_ai_request
 
 
 load_dotenv()
@@ -70,6 +72,12 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_text("<FIN>")
 
 
+@app.post("/image-generation")
+async def image_generation(prompt: str):
+    respone = stability_ai_request(prompt)
+    return {"success": True, "image_data_url": respone}
+
+
 @app.get("/fetch-messages", response_model=list[dict])
 async def fetch_messages():
     return [
@@ -80,4 +88,4 @@ async def fetch_messages():
 
 @app.get("/")
 def test():
-    return {"detail": "Yes api is working."}
+    return {"detail": "Yes, api is working."}
