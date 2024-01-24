@@ -2,7 +2,7 @@ import base64
 import requests
 import os
 from dotenv import load_dotenv
-
+from fastapi import HTTPException
 
 load_dotenv()
 
@@ -36,7 +36,7 @@ def stability_ai_request(prompt: str):
     )
 
     if response.status_code != 200:
-        raise Exception("Non-200 response: " + str(response.text))
+        raise HTTPException(status_code=response.status_code, detail="Non-200 response" + str(response.text))
 
     data = response.json()
 
