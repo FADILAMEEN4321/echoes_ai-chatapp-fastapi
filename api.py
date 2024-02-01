@@ -27,20 +27,26 @@ app = FastAPI()
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    """
-    websocket_endpoint handles websocket connections.
-
-    It accepts websocket connections, and then enters a loop to handle
-    messages received over the websocket.
-
-    If a text and image is received, it generates a response using the
-    vision model. Otherwise it just generates a text response using the
-    chat model.
-
-    It streams back the response in chunks over the websocket."""
-
     await websocket.accept()
 
+    while True:
+        message = await websocket.receive_json()
+
+        if message.get("text") == "<FIN>":
+            await websocket.close()
+            break
+
+        response = chat.send_message([message.get("text")], stream=True)
+
+        for chunk in response:
+            await websocket.send_text(chunk.text)
+
+        await websocket.send_text("<FIN>")
+
+
+@app.websocket("/ws/image-chat")
+async def websocket_image_chat(websocket: WebSocket):
+    await websocket.accept()
     while True:
         message = await websocket.receive_json()
 
@@ -58,13 +64,6 @@ async def websocket_endpoint(websocket: WebSocket):
             response = vision_model.generate_content([text, img], stream=True)
             response.resolve()
             print(response)
-
-        else:
-            if message.get("text") == "<FIN>":
-                await websocket.close()
-                break
-
-            response = chat.send_message([message.get("text")], stream=True)
 
         for chunk in response:
             await websocket.send_text(chunk.text)
