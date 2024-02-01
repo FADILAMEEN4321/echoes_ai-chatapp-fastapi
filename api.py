@@ -7,6 +7,7 @@ import io
 import base64
 import requests
 from stability_ai import stability_ai_request
+from pydantic import BaseModel
 
 
 load_dotenv()
@@ -71,10 +72,16 @@ async def websocket_image_chat(websocket: WebSocket):
         await websocket.send_text("<FIN>")
 
 
+class PromptRequest(BaseModel):
+    prompt: str
+
+from sample_bytes import image_data_url
+
 @app.post("/image-generation")
-async def image_generation(prompt: str):
-    respone = stability_ai_request(prompt)
-    return {"success": True, "image_data_url": respone}
+async def image_generation(request: PromptRequest):
+    # respone = stability_ai_request(request.prompt)
+    # return {"success": True, "image_data_url": respone}
+    return {"success": True, "image_data_url": image_data_url}
 
 
 @app.get("/fetch-messages", response_model=list[dict])
