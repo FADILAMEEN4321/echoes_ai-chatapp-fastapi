@@ -5,7 +5,6 @@ import google.generativeai as genai
 import PIL.Image
 import io
 import base64
-import requests
 from stability_ai import stability_ai_request
 from pydantic import BaseModel
 
@@ -75,7 +74,9 @@ async def websocket_image_chat(websocket: WebSocket):
 class PromptRequest(BaseModel):
     prompt: str
 
+
 from sample_bytes import image_data_url
+
 
 @app.post("/image-generation")
 async def image_generation(request: PromptRequest):
